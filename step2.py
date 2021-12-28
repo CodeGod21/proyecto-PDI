@@ -2,7 +2,6 @@ import cv2
 import mediapipe as mp
 import numpy as np
 from matplotlib import pyplot as plt
-from xlsxwriter import Workbook
 import pandas as pd
 
 mp_face_mesh = mp.solutions.face_mesh
