@@ -1,5 +1,6 @@
 from skimage.segmentation import slic
 from skimage.segmentation import mark_boundaries
+from skimage.segmentation.boundaries import find_boundaries
 from skimage.util import img_as_float
 from skimage import io
 import argparse
@@ -8,24 +9,28 @@ import mediapipe as mp
 import numpy as np
 from matplotlib import pyplot as plt
 import pandas as pd
+import matlab.engine
 
 
 def superpix (frame):
 # apply SLIC and extract (approximately) the supplied number
-# of segments
-    segments = slic(frame, n_segments = 100, sigma = 5)
+# of segments'C:\Program Files\MATLAB\R2019b'
+    segments = slic(frame, n_segments = 100, sigma = 3, convert2lab=True)
 # show the output of SLIC
     fig = plt.figure("Superpixels -- %d segments%")
+    #print(segments)
     ax = fig.add_subplot(1, 1, 1)
     ax.imshow(mark_boundaries(frame, segments))
+   #boundaries = find_boundaries
+
     plt.axis("off")
-    fig = plt.figure("Superpixels -- %d segments%")
-    ax = fig.add_subplot(1, 1, 1)
-    ax.imshow(mark_boundaries(frame, segments))
-    plt.axis("off")
-# show the plots
     plt.show(block=False)
     plt.pause(0.001)
+
+    #plt.axis("off")
+# show the plots
+    #plt.show(block=False)
+    #plt.pause(0.001)
     return 
 
 
@@ -100,9 +105,12 @@ with mp_face_mesh.FaceMesh(
         dst = wbg+res
         #cv2.imshow("Cropped", cropped )
 
+        cropped = cv2.cvtColor(cropped, cv2.COLOR_BGR2RGB)
+
         ROI_frame = img_as_float(cropped)
         #cv2.imshow("Cropped", cropped )
         superpix(ROI_frame)
+        print (values)
 
 
 
@@ -155,4 +163,5 @@ with mp_face_mesh.FaceMesh(
 
 
 cv2.destroyAllWindows()
+
 
