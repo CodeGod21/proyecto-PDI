@@ -7,6 +7,8 @@ from PIL import Image
 from PIL import ImageTk
 import cv2
 import imutils
+import time
+
 
 
 cap = None
@@ -53,6 +55,10 @@ def finalizarCaptura():
     cap.release()
     writer.release()
     labelVideoCamara.destroy()
+    buttonIniciar.destroy()
+    buttonFinalizar.destroy()
+    labelVideoCamara.destroy()
+
 
 
 
@@ -77,6 +83,7 @@ def seleccionar_visualizar():
 
 def visualizarVideo():
     global cap
+    time.sleep(0.15)
     if cap is not None:
         ret, frame = cap.read()
         if ret == True:
@@ -173,8 +180,8 @@ if __name__ == "__main__":
     labelVideoPath = Label(video , text="Para utilizar la camara :", bg="lightblue")
     labelVideoPath.grid(column=0, row=13)
 
-    labelVideoPath = Label(video , text="Para utilizar la camara :", bg="lightblue")
-    labelVideoPath.grid(column=0, row=13)
+    #labelVideoPath = Label(video , text="Para utilizar la camara :", bg="lightblue")
+    #labelVideoPath.grid(column=0, row=13)
 
     buttonIniciar = Button(video, text="Iniciar Captura", width=15, command=iniciarCaptura)
     buttonIniciar.grid(column=1, row=13)
