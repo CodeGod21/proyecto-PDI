@@ -12,11 +12,12 @@ import imutils
 cap = None
    
 def visualizarCaptura():
-    
     global cap
+
     if cap is not None:      
         ret, frame = cap.read()
         if ret == True:
+            writer.write(frame)
             frame = imutils.resize(frame, width=640)
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             im = Image.fromarray(frame)
@@ -30,12 +31,28 @@ def visualizarCaptura():
             
 def iniciarCaptura():
     global cap
+    global writer
+    global width
+    global height
+
     cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+    width= int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height= int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+    writer= cv2.VideoWriter('Muestra.mp4', cv2.VideoWriter_fourcc(*'DIVX'), 20, (width,height))
     visualizarCaptura()
+
+    #cap= cv2.VideoCapture(0)
+
+    
 
 def finalizarCaptura():
     global cap
+    global writer
+    global labelVideoCamara
     cap.release()
+    writer.release()
+    labelVideoCamara.destroy()
 
 
 
