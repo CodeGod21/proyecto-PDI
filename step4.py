@@ -11,10 +11,10 @@ cap = cv2.VideoCapture("Muestra.mp4")
 fps = cap.get(cv2.CAP_PROP_FPS)
 print('fps:'+str(fps))
 index_list = [66,296,297,67] # Lista con posicione de puntos correspondientes a la frente
-output_size = (130, 60) #Dimensiones de frame de solo la frente para posterior analisis en matlab
-writer = cv2.VideoWriter('outpy.mp4',cv2.VideoWriter_fourcc('M','J','P','G'), 20, output_size) 
-posiciones_frente = []
 
+
+posiciones_frente = []
+wait_size = 0
 
 
 
@@ -45,19 +45,22 @@ with mp_face_mesh.FaceMesh(
         cv2.drawContours(mask, [points], -1, (255, 255, 255), -1, cv2.LINE_AA)
         res = cv2.bitwise_and(frame,frame,mask = mask)
         rect = cv2.boundingRect(points) # returns (x,y,w,h) of the rect
-        cropped = res[rect[1]: rect[1] + 60, rect[0]: rect[0] + 130]
-    
-   
-        #Guardamos este frame en output.avi
-        writer.write(cv2.resize(cropped, output_size))
+        cropped = res[rect[1]: rect[1] + rect[3], rect[0]: rect[0] + rect[2]]
+        if wait_size == 2:   #Esperamos unos frames hasta que se ajuste la poscion de la ROI para la correcta medicion 
+            output_size = (rect[2],rect[3])
+            writer = cv2.VideoWriter('outpy.mp4',cv2.VideoWriter_fourcc('M','J','P','G'), 20, output_size) 
+        
+        
+        if wait_size > 3: #Esperamos otro frame para empezar a grabar el ROI
+            writer.write(cv2.resize(cropped, output_size))
+        wait_size = wait_size + 1
         cv2.imshow("Cropped", cropped )
         posiciones_frente = []    
  
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        if cv2.waitKey(1) == 27:
             cap.release()
             writer.release()
             break
 
 writer.release()
 cv2.destroyAllWindows()
-
