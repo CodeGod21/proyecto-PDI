@@ -9,7 +9,11 @@ import cv2
 import imutils
 import time
 
-
+#############
+import cv2
+import mediapipe as mp
+import numpy as np
+##################
 
 cap = None
    
@@ -95,6 +99,7 @@ def visualizarVideo():
             labelVideo.image = img
             labelVideo.after(10, visualizarVideo)
         else:
+            exec(open("step4.py").read())
             labelVideoPath.configure(text="Aún no se ha seleccionado un video")
             labelVideoPath.grid(column=1, row=10)
             labelVideo.image = ""
