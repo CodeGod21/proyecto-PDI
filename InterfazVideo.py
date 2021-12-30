@@ -85,7 +85,7 @@ def seleccionar_visualizar():
     video_path = filedialog.askopenfilename(filetypes = [
         #permite formato .mp4 , .avi y .mod
         ("all video format", ".mp4"),
-        ("all video format", ".mod"),
+        ("all video format", ".MOV"),
         ("all video format", ".avi")])
     #Si se selecciono el video   
     if len(video_path) > 0:
