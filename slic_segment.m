@@ -1,21 +1,24 @@
 clc
-clear
 close all
+clear
 tic
+%%
+frames=600;
 %% Read Input Image and convert to CieLAB Space
 
-[file,path] = uigetfile('mzunig2.png');
-f = fullfile(path,file);
-a = imread(f);
+%[file,path] = uigetfile('mzunig2.png');
+%f = fullfile(path,file);
+a = imread('framecrop.png');
 % a = imresize(a,0.5);
 a_lab = rgb2lab(a);
+
 %% Uncomment for the fire effect
 % labTransformation = makecform('srgb2lab');
 % a_lab = double(applycform(a,labTransformation));
 
 %% Parameters
 
-m = 15;
+m = 30;
 n = 5;     %threshold on no. of iterations
 k = 100;
 %% 
@@ -103,22 +106,22 @@ while iter < n
    iter = iter +1;
     x = iter/(n);
     waitbar(x,f)
-%    %% Uncomment Following lines to see the image at every step
-%    for i4 = 1:size(a,1)
-%     for j4 = 1:size(a,2)
-%         for k4 = 1:3
-%         if o(i4,j4)~=0
-%         out(i4,j4,k4) = c(o(i4,j4),k4);
-%         end
-%     end
-%     end
-% end
+    %% Uncomment Following lines to see the image at every step
+    for i4 = 1:size(a,1)
+        for j4 = 1:size(a,2)
+            for k4 = 1:3
+            if o(i4,j4)~=0
+            out(i4,j4,k4) = c(o(i4,j4),k4);
+            end
+            end
+        end
+    end
 %    
-% out1 = lab2rgb(out)*255;
-% figure;
-% imshow(uint8(out1));
+    out1 = lab2rgb(out)*255;
+    figure;
+    imshow(uint8(out1));
 % 
-% outvid(:,:,:,iter) = uint8(out1);
+%   outvid(:,:,:,iter) = uint8(out1);
 end
 close(f)
 %%
@@ -136,10 +139,73 @@ end
 % out1 = applycform(out,cform);    
 out1 = lab2rgb(out)*255;
 
-%Separación  
+%Separación en canales 
 [R,G,B] = imsplit(out1);
 imshow(uint8(out1));
 figure;
+TSPinit=1;
+inside=0;
+TSPlist{k2+1}=1;
+
+for i=1:k2
+    TSPlist{i}=0;
+end
+
+for i4 = 1:size(a,1)
+        for j4 = 1:size(a,2)
+            
+            rs=out1(i4,j4,1);
+            gs=out1(i4,j4,2);
+            bs=out1(i4,j4,3);
+            TSP_vector = [rs,gs,bs];
+
+            if (TSPinit==1)
+                TSPlist{1}=TSP_vector;
+                TSPinit=0;
+            
+            else
+                
+                for i=1:k2
+                    currentpix=TSPlist{i};
+                    if (currentpix(1)==0||currentpix(1)==1)
+                        break
+                    else
+                        if (currentpix(1)==TSP_vector(1)&&currentpix(2)==TSP_vector(2)&&currentpix(3)==TSP_vector(3))
+                        inside=1;
+                        end
+                    end 
+                end
+                if (inside==0)
+                    for i=1:k2
+                       currentpix=TSPlist{i};
+                        if (currentpix(1)==0)
+                            TSPlist{i}=TSP_vector;      % Aquí se ingresa un nuevo superpixel al arreglo del frame.
+                            break;
+                        end
+                    end
+                end
+                
+            end
+            inside = 0;
+        end
+end
+%% Se guarda el arreglo que contiene los valores R,G,B para k2 superpixeles del frame actual, de manera indexada.
+file = load('out_TSP.mat');
+out_TSP=file.out_TSP;
+for i=1:(frames)
+   if (out_TSP{i,1}==0)
+        maxtsp=length(TSPlist);
+        for k=1:maxtsp
+        out_TSP{i,k}=TSPlist{1,k};
+        end
+        break
+    end
+   
+end
+
+save out_TSP.mat out_TSP
+TSP_lista = TSPlist;
+%% MAPAS R G B para el frame.
 imshow(uint8(R));
 figure;
 imshow(uint8(G));
@@ -155,3 +221,6 @@ f1 = out1.*d;
 %imshow(uint8(f1))
 %%
 toc
+%% IMPORTANTE, COMENTAR ESTA SECCION SI QUIERE VER LAS GRAFICAS 
+%
+close all
